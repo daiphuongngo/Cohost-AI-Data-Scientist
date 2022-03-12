@@ -8,14 +8,15 @@ import plotly.express as px
 import json
 import plotly
 from flask import Flask, render_template
+from config import *
 
 # Load data để lấy các câu nói của người dùng
-df = pd.read_csv("data.csv")
+df = pd.read_csv(DATA_FILE)
 sentences = list(df['texts'])
 
 # Load model ở trên huggingFace
-PhobertTokenizer = AutoTokenizer.from_pretrained("VoVanPhuc/sup-SimCSE-VietNamese-phobert-base")
-model = AutoModel.from_pretrained("VoVanPhuc/sup-SimCSE-VietNamese-phobert-base")
+PhobertTokenizer = AutoTokenizer.from_pretrained(NAME_MODEL)
+model = AutoModel.from_pretrained(NAME_MODEL)
 
 # tiền sử lý text, tạo thành các đầu vào phù hợp cho model
 inputs = PhobertTokenizer(sentences, padding=True, truncation=True, return_tensors="pt")
