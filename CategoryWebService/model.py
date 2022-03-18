@@ -2,7 +2,7 @@ import os
 import pickle
 
 import torch
-from transformers import AdamW, AutoModel, AutoTokenizer
+from transformers import AutoModel, AutoTokenizer
 from config import *
 from utils import *
 
@@ -77,6 +77,8 @@ class ModelMultipleLabel:
 
         self.intents = get_pickle(intent_file)
         self.categories = get_pickle(category_file)
+        self.intents_dict = {k: v for v, k in enumerate(self.intents)}
+        self.categories_dict = {k: v for v, k in enumerate(self.categories)}
 
         if os.path.exists(model_file):
             print(os.path.exists(model_file))
@@ -105,6 +107,12 @@ class ModelMultipleLabel:
 
         intent_name, intent_confident = post_preprocessing(intent_out, self.intents)
         category_name, category_confident = post_preprocessing(category_out, self.categories)
+
+        intent_confident = float(intent_confident)
+        category_confident = float(category_confident)
+
+        # intent_confident = str(float(intent_confident))
+        # category_confident = str(float(category_confident))
 
         intent_obj = IntentClass(intent_name, intent_confident)
         category_obj = CategoryClass(category_name, category_confident)

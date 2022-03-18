@@ -10,42 +10,10 @@ from torchmetrics.functional import accuracy
 from config import *
 from model import ModelMultipleLabel
 
-model = ModelMultipleLabel(
-    name_backbone=BACKBONE_NAME,
-    model_file=MODEL_FILE,
-    intent_file=INTENT_FILE,
-    category_file=CATEGORY_FILE
-)
-
-df = pd.read_csv(DATA_FILE, index_col=False)
-
-label1_list = sorted(list(set(df.iloc[:, -2])))
-label2_list = sorted(list(set(df.iloc[:, -1])))
-label1_dir = {k: v for v, k in enumerate(label1_list)}
-label2_dir = {k: v for v, k in enumerate(label2_list)}
-
-
-class CusttomData(Dataset):
-    def __init__(self, df, transforms=None):
-        self.df = df
-        self.transforms = transforms
-
-    def __len__(self):
-        return len(self.df)
-
-    def __getitem__(self, idx):
-        text = self.df.iloc[idx, -3]
-        label1 = self.df.iloc[idx, -2]
-        label2 = self.df.iloc[idx, -1]
-        if self.transforms:
-            text = self.transforms(text=text)["text"]
-
-        return text, label1, label2
-
 
 def collate_fn(batch):
-    input_ids, attention_masks, labels1, labels2 = [], [], [], []
-    for text, label1, label2 in batch:
+    input_ids, attention_masks, intents, categories = [], [], [], []
+    for text, intent, category in batch:
         encoded_dict = model.tokenizer.encode_plus(
             text,  # Sentence to encode.
             add_special_tokens=True,  # Add '[CLS]' and '[SEP]'
@@ -58,21 +26,15 @@ def collate_fn(batch):
         input_ids.append(encoded_dict['input_ids'])
         attention_masks.append(encoded_dict['attention_mask'])
 
-        labels1.append(label1_dir[label1])
-        labels2.append(label2_dir[label2])
+        intents.append(model.intents_dict[intent])
+        categories.append(model.categories_dict[category])
 
     input_ids = torch.cat(input_ids, dim=0)
     attention_masks = torch.cat(attention_masks, dim=0)
-    labels1 = torch.tensor(labels1, dtype=torch.long)
-    labels2 = torch.tensor(labels2, dtype=torch.long)
+    intents = torch.tensor(intents, dtype=torch.long)
+    categories = torch.tensor(categories, dtype=torch.long)
 
-    return input_ids, attention_masks, labels1, labels2
-
-
-data_train = CusttomData(df)
-train_loader = DataLoader(
-    data_train, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn
-)
+    return input_ids, attention_masks, intents, categories
 
 
 def emr(out1, out2, y1, y2):
@@ -80,6 +42,24 @@ def emr(out1, out2, y1, y2):
     out2 = torch.argmax(out2, -1)
 
     return ((out1 == y1) * (out2 == y2)).sum() / y2.shape[0]
+
+
+class CustomData(Dataset):
+    def __init__(self, df, transforms=None):
+        self.df = df
+        self.transforms = transforms
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        text = self.df.iloc[idx, -3]
+        intent = self.df.iloc[idx, -2]
+        category = self.df.iloc[idx, -1]
+        if self.transforms:
+            text = self.transforms(text=text)["text"]
+
+        return text, intent, category
 
 
 class LitClassification(pl.LightningModule):
@@ -123,6 +103,20 @@ class LitClassification(pl.LightningModule):
 
         return loss
 
+
+model = ModelMultipleLabel(
+    name_backbone=BACKBONE_NAME,
+    model_file=MODEL_FILE,
+    intent_file=INTENT_FILE,
+    category_file=CATEGORY_FILE
+)
+
+df = pd.read_csv(DATA_FILE, index_col=False)
+
+data_train = CustomData(df)
+train_loader = DataLoader(
+    data_train, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn
+)
 
 print(type(model.backbone))
 print(type(model.fc))

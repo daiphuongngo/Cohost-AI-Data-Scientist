@@ -1,11 +1,12 @@
+import os
 
-DATA_FILE = "file_store/data.csv"
+DATA_FILE = DATA_FILE = os.getenv('DATA_FILE', 'file_store/data.csv')
 
-INTENT_FILE = "file_store/intents_list.pkl"
-CATEGORY_FILE = "file_store/categories_list.pkl"
+INTENT_FILE = os.getenv("INTENT_FILE", "file_store/intents_list.pkl")
+CATEGORY_FILE = os.getenv("CATEGORY_FILE", "file_store/categories_list.pkl")
 
-BACKBONE_NAME = "VoVanPhuc/sup-SimCSE-VietNamese-phobert-base"
-MODEL_FILE = "file_store/fc.pt"
+BACKBONE_NAME = os.getenv("BACKBONE_NAME", "VoVanPhuc/sup-SimCSE-VietNamese-phobert-base")
+MODEL_FILE = os.getenv("MODEL_FILE", "file_store/fc.pt")
 
 MAX_LENGTH = 45
 
