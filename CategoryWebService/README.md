@@ -40,10 +40,10 @@ MODEL_FILE = "file_store/fc.pt"
 
 MAX_LENGTH = 45 # Có thể coi như sô từ tối đa model có thể hiểu
 ```
-## install env pip 
+## install env pipenv 
 Cài đặt các package đã dùng trong lúc làm 
 ```bash
-$ pip install -r requirements.txt
+$ pipenv install
 ```
 
 ## Train model 
