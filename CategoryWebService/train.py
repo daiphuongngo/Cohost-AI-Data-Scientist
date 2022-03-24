@@ -90,7 +90,7 @@ class LitClassification(pl.LightningModule):
 
         loss1 = F.cross_entropy(out1, y1)
         loss2 = F.cross_entropy(out2, y2)
-        loss = 0.7 * loss1 + 0.3 * loss2
+        loss = ALPHA*loss1 + (1-ALPHA)*loss2
 
         self.log('train_loss', loss.item(), on_step=False, on_epoch=True)
 
