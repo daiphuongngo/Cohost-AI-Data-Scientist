@@ -65,6 +65,8 @@ MarkupSafe = "==2.1.1"
 pyDeprecate = "==0.3.1"
 PyYAML = "==6.0"
 Werkzeug = "==2.0.3"
+scikit-learn = "*"
+plotly = "*"
 
 [dev-packages]
 

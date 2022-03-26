@@ -59,8 +59,9 @@ LR = 8e-4 # Tốc độ học hập
 EPS = 1e-8 # Hệ số giảm LR
 ```
 ```
-$ python train.py
+$ pipenv run python train.py
 ```
+Trong trường hợp thư mục `file_store` có đầy chứa file `fc.pt` thì bước này không cần thiết
 
 ## Run service 
 Khởi chạy service, đường dẫn mặc định sẽ là http://127.0.0.1:5000/
@@ -69,13 +70,13 @@ Một API đơn giản của service này là http://127.0.0.1:5000/?q=<TEXT>
 
 API cần đầu vào là text, trả về độ tin cậy intent, category dạng chuỗi json
 ```
-$ python main.py
+$ pipenv run python main.py
 ```
 
 ## Test request service
 Test một request
 ```` 
-$ python test.py
+$ pipenv run python test.py
 ````
 http://127.0.0.1:5000/?q=Xin Chào
 ![image](image/image.png)
