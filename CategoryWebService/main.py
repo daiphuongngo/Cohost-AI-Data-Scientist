@@ -1,5 +1,5 @@
 # Import lib
-from flask import Flask
+from flask import Flask, render_template
 from flask_restful import Api, Resource
 from flask import request
 from transformers import AutoTokenizer
@@ -8,6 +8,8 @@ import pickle
 import json
 from config import *
 from model import *
+from cluster import Cluster
+import plotly
 
 # *****************
 
@@ -20,6 +22,8 @@ model = ModelMultipleLabel(
     intent_file=INTENT_FILE,
     category_file=CATEGORY_FILE
 )
+
+cluster = Cluster()
 ##########################
 
 
@@ -33,6 +37,17 @@ class CategoryWeb(Resource):
         if "q" in request.args:
             text = request.args["q"]
             return model.predict(text)
+
+
+@app.route('/clustering')
+def clustering():
+    # Mã hóa đồ thị thành dạng json và gửi nó đến template html
+    sentences = cluster.read_data(DATA_FILE)
+    embeddings = cluster.embedding(sentences, 
+                    model.backbone, 
+                    model.tokenizer)
+    graphJSON = json.dumps(cluster.visualization(sentences, embeddings), cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('clustering.html', graphJSON=graphJSON)
 
 
 api.add_resource(CategoryWeb, "/")

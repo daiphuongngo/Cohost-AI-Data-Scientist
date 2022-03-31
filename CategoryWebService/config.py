@@ -16,6 +16,8 @@ EPOCH = 100
 LR = 8e-4
 EPS = 1e-8
 
+ALPHA = 0.7
+
 
 
 
