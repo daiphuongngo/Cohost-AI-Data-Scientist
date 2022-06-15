@@ -1,1 +1,1 @@
-# How to analysis Cohost data
+# How to analyze Cohost data
